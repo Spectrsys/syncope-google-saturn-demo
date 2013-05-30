@@ -170,6 +170,16 @@ under the License.
             </goals>
           </execution>
         </executions>
+        <configuration>
+          <artifactItems>
+            <artifactItem>
+              <groupId>org.connid.bundles</groupId>
+              <artifactId>${connid.bundle.name}</artifactId>
+              <version>${connid.bundle.version}</version>
+              <outputDirectory>${bundles.directory}</outputDirectory>
+            </artifactItem>
+          </artifactItems>          
+        </configuration>
       </plugin>
             
       <plugin>
@@ -299,4 +309,5 @@ under the License.
       </build>
     </profile>    
   </profiles>
+
 </project>

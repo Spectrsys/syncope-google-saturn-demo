@@ -28,6 +28,8 @@ under the License.
 
   <properties>
     <syncope.version>1.0.6</syncope.version>
+    <connid.bundle.version>1.3.3</connid.bundle.version>
+    <connid.bundle.name>org.connid.bundles.googleapps</connid.bundle.name>
   </properties>
 
   <name>Apache Syncope sample project</name>
@@ -78,7 +80,13 @@ under the License.
         <version>${syncope.version}</version>
         <classifier>classes</classifier>
         <scope>provided</scope>
-      </dependency> 
+      </dependency>
+      <dependency>
+         <groupId>org.connid.bundles</groupId>
+         <artifactId>${connid.bundle.name}</artifactId>
+         <version>${connid.bundle.version}</version>
+         <scope>test</scope>
+      </dependency>
     </dependencies>
   </dependencyManagement>
     

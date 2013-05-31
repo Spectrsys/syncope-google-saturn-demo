@@ -16,15 +16,21 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
-
 -->
-<persistence xmlns="http://java.sun.com/xml/ns/persistence"
-             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence
-             http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
-             version="2.0">
-  <persistence-unit name="syncopePersistenceUnit">
-    <mapping-file>META-INF/orm.xml</mapping-file>
-    <validation-mode>NONE</validation-mode>
-  </persistence-unit>
-</persistence>
+<weblogic-web-app xmlns="http://xmlns.oracle.com/weblogic/weblogic-web-app" 
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+                  xsi:schemaLocation="http://xmlns.oracle.com/weblogic/weblogic-web-app
+                                      http://xmlns.oracle.com/weblogic/weblogic-web-app/1.4/weblogic-web-app.xsd">
+
+  <context-root>syncope-console</context-root>
+  
+  <container-descriptor>    
+    <prefer-application-packages>
+      <package-name>org.apache.commons.*</package-name>
+      <package-name>org.slf4j.*</package-name>
+      <package-name>org.codehaus.jackson.*</package-name>
+      <package-name>net.sf.cglib.*</package-name>
+    </prefer-application-packages>
+  </container-descriptor>
+
+</weblogic-web-app>

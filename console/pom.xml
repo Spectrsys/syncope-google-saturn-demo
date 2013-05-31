@@ -25,7 +25,7 @@ under the License.
   <parent>
     <groupId>org.wizant.syncope.demo</groupId>
     <artifactId>demo</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.1-SNAPSHOT</version>
   </parent>
 
   <name>Apache Syncope sample project console</name>
@@ -106,28 +106,8 @@ under the License.
     </dependency>
     <dependency>
       <groupId>org.connid.bundles.soap</groupId>
-      <artifactId>org.connid.bundles.soap</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.connid.bundles.soap</groupId>
       <artifactId>wssample</artifactId>
       <type>war</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.connid.bundles.db</groupId>
-      <artifactId>org.connid.bundles.db.table</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.connid.bundles</groupId>
-      <artifactId>org.connid.bundles.csvdir</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.connid.bundles</groupId>
-      <artifactId>org.connid.bundles.ldap</artifactId>
       <scope>test</scope>
     </dependency>
     <!-- /TEST -->    
@@ -137,25 +117,6 @@ under the License.
     <finalName>syncope-console</finalName>
 
     <plugins>
-      
-      <plugin>
-        <groupId>org.codehaus.gmaven</groupId>
-        <artifactId>gmaven-plugin</artifactId>
-        <inherited>true</inherited>
-        <executions>
-          <execution>
-            <phase>generate-resources</phase>
-            <goals>
-              <goal>execute</goal>
-            </goals>
-            <configuration>
-              <source>
-                project.properties['urlencoded.csvdir.path'] = java.net.URLEncoder.encode(project.properties['test.csvdir.path'])
-              </source>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
       
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -192,13 +153,7 @@ under the License.
             <phase>pre-integration-test</phase>
             <configuration>
               <target>
-                <unzip src="${basedir}/../core/target/syncope.war" dest="${cargo.run.dir}">
-                  <patternset>
-                    <exclude name="**/content.xml" />
-                    <exclude name="**/persistence.properties" />
-                    <exclude name="**/workflow.properties" />
-                  </patternset>
-                </unzip>
+                <unzip src="${basedir}/../core/target/syncope.war" dest="${cargo.run.dir}"/>
                 <copy file="${project.build.directory}/test-classes/db.jsp" todir="${cargo.run.dir}"/>
                 <copy todir="${cargo.run.dir}/WEB-INF/classes" includeEmptyDirs="false">
                   <fileset dir="${project.build.directory}/test-classes"/>
@@ -236,6 +191,9 @@ under the License.
                 <artifactId>h2</artifactId>
               </dependency>
             </dependencies>
+            <systemProperties>
+              <syncope.console.configuration>${project.build.directory}/test-classes/configuration.properties</syncope.console.configuration>
+            </systemProperties>
           </container>
           <configuration>
             <type>standalone</type>
@@ -309,5 +267,4 @@ under the License.
       </build>
     </profile>    
   </profiles>
-
 </project>

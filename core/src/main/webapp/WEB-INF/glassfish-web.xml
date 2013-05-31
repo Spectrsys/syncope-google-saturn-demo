@@ -1,4 +1,5 @@
-<%--
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
 distributed with this work for additional information
@@ -15,22 +16,19 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
---%>
-<%@page import="java.sql.SQLException"%>
-<%@page import="org.h2.tools.Server"%>
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%
-    Server h2Datastore = (Server) getServletConfig().getServletContext().getAttribute("H2_DATASTORE");
-    if (h2Datastore == null || !h2Datastore.isRunning(true)) {
-        try {
-            h2Datastore = Server.createWebServer("-webPort", "8082");
-            h2Datastore.start();
 
-            getServletConfig().getServletContext().setAttribute("H2_DATASTORE", h2Datastore);
-        } catch (SQLException e) {
-            getServletConfig().getServletContext().log("Could not start H2 web console (datastore)", e);
-        }
-
-        response.sendRedirect("http://localhost:8082");
-    }
-%>
+-->
+<!DOCTYPE glassfish-web-app PUBLIC "-//GlassFish.org//DTD 
+GlassFish Application Server 3.1 Servlet 3.0//EN" "http://glassfish.org/dtds/glassfish-web-app_3_0-1.dtd">
+<glassfish-web-app>
+  <context-root>/syncope</context-root>
+  <!-- Uncomment this when using JNDI DataSource -->
+  <!--<resource-ref>
+    <res-ref-name>jdbc/syncopeDataSource</res-ref-name>
+    <jndi-name>jdbc/syncopeDataSource</jndi-name>
+  </resource-ref>-->
+  <class-loader delegate="false"/>
+  <jsp-config>
+    <property name="httpMethods" value="GET,POST,HEAD,PUT,DELETE"/>
+  </jsp-config>
+</glassfish-web-app>

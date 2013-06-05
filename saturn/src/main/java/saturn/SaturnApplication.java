@@ -11,5 +11,4 @@ public class SaturnApplication extends WebApplication {
     public Class<? extends Page> getHomePage() {
         return HomePage.class;
     }
-
 }

@@ -6,6 +6,5 @@ import org.apache.wicket.markup.html.basic.Label;
 public class HomePage extends WebPage {
 
     public HomePage() {
-        add(new Label("user", "World"));
     }
 }

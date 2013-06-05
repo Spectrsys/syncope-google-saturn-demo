@@ -1,0 +1,87 @@
+<!--sidebar-->
+<aside id="sidebar" class="span2">
+    <div class="widget">
+        <div class="widget-content">
+            <div class="btn-group">
+                <button class="btn btn-success" data-toggle="dropdown"> Create New </button>
+                <button data-toggle="dropdown" class="btn btn-success dropdown-toggle"><span class="caret"></span></button>
+                <ul class="dropdown-menu">
+                    <li><a href="" ng-click="modals.calendarDetails = true">Calendar</a></li>
+                    <li><a href="" ng-click="modals.eventDetails = true">Event</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="widget" ng-controller="EventController">
+        <div class="widget-heading">
+            <div class="widget-title">Mini calendar</div>
+        </div>
+        <div class="widget-content">
+            <div ui-calendar="miniCalendar" class="mini-calendar" ng-model="eventSources"></div>
+        </div>
+    </div>
+
+    <div ng-controller="CalendarController">
+        <!--calendar listing-->
+        <div class="widget" ng-repeat="list in data.calendarList">
+            <div class="widget-heading">
+                <div class="dropdown pull-right">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                        &nbsp;
+                        <i class="icon-caret-down"></i>
+                        &nbsp;
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#/calendar/create">Create new calendar</a></li>
+                        <li><a href="#/settings/calendars">Settings</a></li>
+                    </ul>
+                </div>
+                <div class="widget-title">{{list.title}}</div>
+            </div>
+            <div class="widget-content">
+                <ul class="unstyled calendar-list" ng-show="list.calendars.length">
+                    <li ng-repeat="calendar in list.calendars">
+                        <div class="dropdown pull-right">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                <i class="icon-caret-down"></i>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a ng-href="#/calendar/{{calendar.id | encodeURIComponent}}/settings" ng-click="setCalendar()">Calendar settings</a>
+                                </li>
+                                <li>
+                                    <a ng-href="">Display only this calendar</a>
+                                </li>
+                                <li>
+                                    <a ng-href="">Hide this calendar from the list</a>
+                                </li>
+                                <li ng-show="{{calendar.accessRole == 'owner'}}">
+                                    <a ng-href="#/calendar/{{calendar.id | encodeURIComponent}}/settings" ng-click="panes.calendarShare = true">Share this calendar</a>
+                                </li>
+                                <li ng-show="{{calendar.accessRole == 'owner'}}">
+                                    <a href="">Create an event on this calendar</a>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <label title={{calendar.description}}>
+                            <span ng-class="{'color-preview': true, 'color-preview-inactive': !calendar.selected}" style="background-color:{{calendar.backgroundColor}}">
+                                <input type="checkbox" value="{{calendar.id}}" ng-model="calendar.selected" ng-change="updateEventSources()" />
+                            </span>
+                            {{calendar.summary}}
+                        </label>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <!--/calendar listing-->
+    </div>
+</aside>
+<!--/sidebar-->
+
+<!--content-->
+<div id="content" class="span10" ng-controller="EventController">
+    <div ui-calendar="masterCalendar" class="calendar" ng-model="eventSources"></div>
+</div>
+<!--/content-->

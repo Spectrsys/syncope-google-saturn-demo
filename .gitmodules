@@ -1,0 +1,3 @@
+[submodule "saturn/src/main/resources/saturn/web"]
+	path = saturn/src/main/resources/saturn/web
+	url = git@github.com:Spectrsys/saturn.git

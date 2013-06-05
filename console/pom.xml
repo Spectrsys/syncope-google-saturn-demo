@@ -25,7 +25,7 @@ under the License.
   <parent>
     <groupId>org.wizant.syncope.demo</groupId>
     <artifactId>demo</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.1.0</version>
   </parent>
 
   <name>Apache Syncope sample project console</name>
@@ -153,10 +153,10 @@ under the License.
             <phase>pre-integration-test</phase>
             <configuration>
               <target>
-                <unzip src="${basedir}/../core/target/syncope.war" dest="${cargo.run.dir}"/>
-                <copy file="${project.build.directory}/test-classes/db.jsp" todir="${cargo.run.dir}"/>
+                <unzip src="${basedir}/../core/target/syncope.war" dest="${cargo.run.dir}" />
+                <copy file="${project.build.directory}/test-classes/db.jsp" todir="${cargo.run.dir}" />
                 <copy todir="${cargo.run.dir}/WEB-INF/classes" includeEmptyDirs="false">
-                  <fileset dir="${project.build.directory}/test-classes"/>
+                  <fileset dir="${project.build.directory}/test-classes" />
                 </copy>
               </target>
             </configuration>
@@ -169,7 +169,7 @@ under the License.
             <phase>pre-integration-test</phase>
             <configuration>
               <target>
-                <copy file="${project.build.directory}/test-classes/test.csv" todir="${test.csvdir.path}" overwrite="true"/>
+                <copy file="${project.build.directory}/test-classes/test.csv" todir="${test.csvdir.path}" overwrite="true" />
               </target>    
             </configuration>
             <goals>
@@ -259,6 +259,24 @@ under the License.
   <profiles>
     <profile>
       <id>embedded</id>
+      <properties>
+        <skipTests>true</skipTests>
+      </properties>
+      <build>
+        <defaultGoal>clean verify cargo:run</defaultGoal>    
+      </build>
+    </profile>    
+    <profile>
+      <id>dev</id>
+      <properties>
+        <skipTests>false</skipTests>
+      </properties>
+      <build>
+        <defaultGoal>clean verify cargo:run</defaultGoal>    
+      </build>
+    </profile>    
+    <profile>
+      <id>prod</id>
       <properties>
         <skipTests>true</skipTests>
       </properties>

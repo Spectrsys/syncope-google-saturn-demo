@@ -9,3 +9,10 @@
 # Build Folders
 target
 
+# Maven build files
+release.properties
+*.releaseBackup
+
+# Netbeans project files
+console/nb-configuration.xml
+

@@ -74,7 +74,6 @@ Check all
 Mysql Configuration
 ====================
 
-    # Mysql
     jpa.driverClassName=com.mysql.jdbc.Driver
     jpa.url=jdbc:mysql://localhost:3306/syncope?characterEncoding=UTF-8
     jpa.username=syncope

@@ -11,22 +11,22 @@
             <div class="widget-content">
                 <ul class="unstyled menu">
                     <li>
-                        <a href="/#/settings">General</a>
+                        <a href="#/settings">General</a>
                     </li>
                     <li>
-                        <a href="/#/settings/profile">Profile</a>
+                        <a href="#/settings/profile">Profile</a>
                     </li>
                     <li>
-                        <a href="/#/settings/account">Account</a>
+                        <a href="#/settings/account">Account</a>
                     </li>
                     <li>
-                        <a href="/#/settings/emails">Emails</a>
+                        <a href="#/settings/emails">Emails</a>
                     </li>
                     <li>
-                        <a href="/#/settings/organizations">Organizations</a>
+                        <a href="#/settings/organizations">Organizations</a>
                     </li>
                     <li class="on">
-                        <a href="/#/settings/calendars">Calendars</a>
+                        <a href="#/settings/calendars">Calendars</a>
                     </li>
                 </ul>
             </div>
@@ -43,6 +43,7 @@
                     <div class="widget-title">Calendar Details</div>
                 </div>
                 <div class="widget-content">
+                    <div class="alert" ng-show="data.currentCalendar.accessRole != 'owner'">You are only <strong>subscribed</strong> to this calendar. Any changes you make to it, will only be visible to you.</div>
                     <ol class="unstyled clearfix">
                         <li>
                             <div class="span2">
@@ -86,7 +87,7 @@
                                 <label for="calendar-background">Background color</label>
                             </div>
                             <div class="span10">
-                                <input type="text" id="calendar-background" ng-change="colorPickerTest()" color-picker="calendar.backgroundColor" ng-model="calendar.backgroundColor" />
+                                <input type="text" id="calendar-background" color-picker="calendar.color" ng-model="calendar.color" />
                             </div>
                         </li>
                         <li>
@@ -94,7 +95,7 @@
                                 <label for="calendar-foreground">Text color</label>
                             </div>
                             <div class="span10">
-                                <input type="text" id="calendar-foreground" ng-change="colorPickerTest()" color-picker="calendar.foregroundColor" ng-model="calendar.foregroundColor" />
+                                <input type="text" id="calendar-foreground" color-picker="calendar.textColor" ng-model="calendar.textColor" />
                             </div>
                         </li>
                     </ol>
@@ -104,7 +105,7 @@
 
 
             <!--calendar sharing-->
-            <div class="widget" id="calendar-sharing">
+            <div class="widget" id="calendar-sharing" ng-show="calendar.accessRole == 'owner'">
                 <div class="widget-heading">
                     <div class="widget-title">Sharing settings</div>
                 </div>
@@ -112,7 +113,7 @@
                     <ol class="unstyled clearfix">
                         <li>
                             <label>
-                                <input type="checkbox" ng-model="calendar.share" />
+                                <input type="checkbox" ng-model="calendar.share" ng-disabled="calendar.accessRole != 'owner'" />
                                 Share this calendar with others
                             </label>
                         </li>
@@ -154,10 +155,32 @@
                     <div class="widget-title">Reminders and notifications</div>
                 </div>
                 <div class="widget-content">
+                    <div ng-hide="calendar.defaultReminders" class="alert">No reminders set</div>
+
+                    <div ng-show="calendar.defaultReminders">
+                        <ul class="unstyled">
+                            <li ng-repeat="reminder in calendar.defaultReminders">
+                                By default, remind me via
+                                <select ng-model="reminder.method" class="input-small">
+                                    <option value="email">Email</option>
+                                    <option value="popup">Pop-up</option>
+                                </select>
+                                every
+                                <input type="text" class="input-mini" ng-model="reminder.minutes" />
+                                <select class="input-small">
+                                    <option value="60">minutes</option>
+                                    <option value="3600">hours</option>
+                                    <option value="86400">days</option>
+                                    <option value="604800">weeks</option>
+                                </select>
+                            </li>
+                        </ul>
+                    </div>
+
                     <table class="table">
                         <thead>
-                        <th>Notification</th>
-                        <th>Email</th>
+                            <th>Notification</th>
+                            <th>Email</th>
                         </thead>
                         <tbody>
                         <tr>

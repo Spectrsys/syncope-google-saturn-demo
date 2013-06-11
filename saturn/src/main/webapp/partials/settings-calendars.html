@@ -11,22 +11,22 @@
             <div class="widget-content">
                 <ul class="unstyled menu">
                     <li>
-                        <a href="/#/settings">General</a>
+                        <a href="#/settings">General</a>
                     </li>
                     <li>
-                        <a href="/#/settings/profile">Profile</a>
+                        <a href="#/settings/profile">Profile</a>
                     </li>
                     <li>
-                        <a href="/#/settings/account">Account</a>
+                        <a href="#/settings/account">Account</a>
                     </li>
                     <li>
-                        <a href="/#/settings/emails">Emails</a>
+                        <a href="#/settings/emails">Emails</a>
                     </li>
                     <li>
-                        <a href="/#/settings/organizations">Organizations</a>
+                        <a href="#/settings/organizations">Organizations</a>
                     </li>
                     <li class="on">
-                        <a href="/#/settings/calendars">Calendars</a>
+                        <a href="#/settings/calendars">Calendars</a>
                     </li>
                 </ul>
             </div>
@@ -38,7 +38,7 @@
     <div id="main-content" class="span10">
         <form name="calendarsSettingsForm">
             <!--personal calendars-->
-            <div class="widget" ng-show="data.calendarList[0].calendars.length">
+            <div class="widget" ng-show="data.calendars.length">
                 <div class="widget-heading">
                     <div class="widget-title">My Calendars <small>Calendars I can view and modify</small></div>
                 </div>
@@ -57,13 +57,13 @@
                             <th>Calendar</th>
                             <th>Show in list</th>
                             <th>Notifications</th>
-                            <th>Sharing</th>
+                            <th>Settings</th>
                             <th>Subscription</th>
                             <th>Delete</th>
                         </tr>
                         </thead>
                         <tbody>
-                        <tr ng-repeat="calendar in data.calendarList[0].calendars">
+                        <tr ng-repeat="calendar in data.calendars | filter:{accessRole: 'owner'}">
                             <td>
                                 <a ng-href="#/calendar/{{calendar.id | encodeURIComponent}}/settings" ng-click="setCalendar()">
                                     <i class="icon-calendar"></i>
@@ -81,7 +81,7 @@
                                 <a ng-href="#/calendar/{{calendar.id | encodeURIComponent}}/settings" ng-click="setCalendar()">Edit settings</a>
                             </td>
                             <td>
-                                <a ng-click="unsubscribe()">Unsubscribe</a>
+                                <a ng-click="unsubscribe()" ng-hide="calendar.primary">Unsubscribe</a>
                             </td>
                             <td>
                                 <a ng-click="deleteCalendar()" title="Delete">
@@ -96,7 +96,7 @@
             <!--/personal calendars-->
 
             <!--calendar subscriptions-->
-            <div class="widget" ng-show="data.calendarList[1].calendars.length">
+            <div class="widget" ng-show="data.calendars.length">
                 <div class="widget-heading">
                     <div class="widget-title">Other Calendars <small>Calendars I can only view</small></div>
                 </div>
@@ -105,19 +105,21 @@
                         <colgroup>
                             <col width="40%" />
                             <col width="10%" />
-                            <col width="40%" />
+                            <col width="20%" />
                             <col width="10%" />
+                            <col width="20%" />
                         </colgroup>
                         <thead>
                         <tr>
                             <th>Calendar</th>
                             <th>Show in list</th>
                             <th>Notifications</th>
+                            <th>Settings</th>
                             <th>Subscription</th>
                         </tr>
                         </thead>
                         <tbody>
-                        <tr ng-repeat="calendar in data.calendarList[1].calendars">
+                        <tr ng-repeat="calendar in data.calendars | filter:{accessRole: '!owner'}">
                             <td>
                                 <a ng-href="#/calendar/{{calendar.id | encodeURIComponent}}/settings" ng-click="setCalendar()">
                                     <i class="icon-calendar"></i>
@@ -130,6 +132,9 @@
                             </td>
                             <td>
                                 <a ng-href="">Reminders and notifications</a>
+                            </td>
+                            <td>
+                                <a ng-href="#/calendar/{{calendar.id | encodeURIComponent}}/settings" ng-click="setCalendar()">Edit settings</a>
                             </td>
                             <td>
                                 <a ng-click="unsubscribe()">Unsubscribe</a>

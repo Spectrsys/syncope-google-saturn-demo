@@ -111,11 +111,13 @@ input {
     overflow: visible;
 }
 
-.fc-event {
-    border: 1px solid #99CCFF;
-    font-size: 90%;
-    color: #333;
-    background: #99CCFF;
+.past-event {
+    zoom: 1;
+    opacity: .5;
+    -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=45)";
+    filter: alpha(opacity=45);
+    -khtml-opacity: .5;
+    -moz-opacity: .5;
 }
 
 .fc-header-title h2 {
@@ -173,6 +175,7 @@ input {
 
 .mini-calendar .fc-border-separate th,
 .mini-calendar .fc-border-separate td {
+    width: 14.3%;
     border-left: 0;
 }
 
@@ -209,9 +212,15 @@ label input[type="checkbox"] {
 
 /* dropdown */
 a.dropdown-toggle {
+    padding: 0.3em 0.5em;
     text-decoration: none;
     font-size: 85%;
     color: #333;
+}
+
+.widget a.dropdown-toggle:hover,
+.widget a.dropdown-toggle:focus {
+    background: #8BD5F9;
 }
 
 /* color picker */
@@ -275,13 +284,11 @@ div.colorPicker-swatch {
 }
 
 /* calendar listings */
-.calendar-list li .dropdown {
-    opacity: 0;
-    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
-    filter: alpha(opacity=0);
-    -khtml-opacity: 0;
-    -moz-opacity: 0;
-}
+/*.calendar-list {
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: 20em;
+}*/
 
 .calendar-list li {
     padding: 0 3px;
@@ -292,28 +299,41 @@ div.colorPicker-swatch {
     background: #eee;
 }
 
-.calendar-list li:hover .dropdown {
-    opacity: 100;
-    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
-    filter: alpha(opacity=100);
-    -khtml-opacity: 100;
-    -moz-opacity: 100;
+.calendar-list li .dropdown-toggle {
+    visibility: hidden;
+}
+
+.calendar-list li:hover .dropdown-toggle,
+.calendar-list .open .dropdown-toggle{
+    visibility: visible;
 }
 
 /* loaders */
-.loading-indicator {
-    width: 20em;
+.feedback {
+    width: 100%;
     top: 3em;
-    left: 50%;
-    margin-left: -10em;
-    position: absolute;
+    left: 0;
+    position: fixed;
     z-index: 100;
     text-align: center;
     font-size: 1.1em;
     font-weight: bold;
+    height: 0;
+}
+
+.feedback-content {
+    display: -moz-inline-stack;
+    display: inline-block;
+    *display: inline;
+    zoom: 1;
+    margin: 0;
     -moz-box-shadow: 0 0 2px rgba(0,0,0,0.1);
     -webkit-box-shadow: 0 0 2px rgba(0,0,0,0.1);
     box-shadow: 0 0 2px rgba(0,0,0,0.1);
+}
+
+.feedback-content .alert {
+    margin: 0;
 }
 
 /* menus */

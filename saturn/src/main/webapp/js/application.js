@@ -113,7 +113,7 @@
                 return [200, {
                     'login_hint': data.user,
                     'apiKey': 'AIzaSyCFj15TpkchL4OUhLD1Q2zgxQnMb7v3XaM',
-                    'clientId': '314009841930-t42p9qgq3ga5m31i795s7dkdo9pvavgl.apps.googleusercontent.com',
+                    'clientId': '314009841930-iq278jutp1hfh159a2eg9pippfg4j581.apps.googleusercontent.com',
                     'scopes': 'https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile'
                 }];
             });
@@ -649,6 +649,22 @@
                 });
             },
             eventDataTransform: function(eventData){
+                var d = new Date(),
+                    endDate,
+                    eventClass;
+
+                if(eventData.end instanceof Date) {
+                    endDate = eventData.end;
+                } else if(eventData.end.date){
+                    endDate = $.fullCalendar.parseDate(eventData.end.date);
+                } else if(eventData.end.dateTime) {
+                    endDate = $.fullCalendar.parseDate(eventData.end.dateTime);
+                }
+
+                if(endDate < d){
+                    eventClass = 'past-event';
+                }
+
                 return {
                     id: eventData.id,
                     title: eventData.title || eventData.summary,
@@ -667,6 +683,7 @@
                     iCalUID: eventData.iCalUID,
                     gadget: eventData.gadget,
                     location: eventData.location,
+                    className: eventClass,
                     start: eventData.start.date || eventData.start.dateTime || eventData.start,
                     end: eventData.end ? (eventData.end.date || eventData.end.dateTime || eventData.end) : (eventData.start.date || eventData.start.dateTime || eventData.start)
                 };
@@ -801,15 +818,10 @@
                     'id': response.data.id,
                     'kind': response.data.kind,
                     'etag': response.data.etag,
-                    'summary': response.data.summary,
-                    'description': response.data.description,
-                    'location': response.data.location,
-                    'timeZone': response.data.timeZone,
-                    'backgroundColor': $scope.calendar.color,
-                    'foregroundColor': $scope.calendar.textColor,
                     'hidden': false,
                     'selected': true,
-                    'accessRole': 'owner',
+                    'foregroundColor': $scope.calendar.foregroundColor,
+                    'backgroundColor': $scope.calendar.backgroundColor,
                     'defaultReminders': [{
                         "method": 'email',
                         "minutes": 10
@@ -828,6 +840,9 @@
                             $rootScope.$broadcast('feedback:stop');
                         }, 1000);
 
+                        //update color meta
+                        response.data.color = response.data.backgroundColor;
+
                         //push the calendar to personal calendars array
                         $scope.data.calendars.push(response.data);
                     } else {
@@ -843,7 +858,10 @@
                     }
                 });
 
-                //$scope.resetCalendar();
+                $scope.resetCalendar();
+
+                //redirect to the homepage
+                $location.path('/');
             });
             //redirect to the homepage
             //$location.path('/');

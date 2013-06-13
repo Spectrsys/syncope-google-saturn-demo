@@ -839,9 +839,9 @@
             eventRender: function (event, element, view) {
                 return false;
             },
-            viewDisplay: function(view){
-                $scope.calendar.fullCalendar('gotoDate', view.start);
-            },
+            // viewDisplay: function(view){
+            //    $scope.calendar.fullCalendar('gotoDate', view.start);
+            // },
             dayClick: function (date, allDay, jsEvent, view) {
                 $scope.calendar.fullCalendar('gotoDate', date);
             }

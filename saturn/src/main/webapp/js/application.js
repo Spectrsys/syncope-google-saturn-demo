@@ -365,17 +365,18 @@
 
                 fetching = true;
                 safeApply($scope, function(){
-                    var promise = Events.list({
+                    Events.list({
                         'calendarId': sources[i].id,
                         'access_token': $.cookie('saturn_access_token'),
                         'timeMin': startTime,
                         'timeMax': endTime
-                    });
+                    },
 
-                    promise.$then(function(){
+                    //success
+                    function(response){
                         sources[i].dateRange.push(timestamp);
 
-                        sources[i].events.push.apply(sources[i].events, promise.items);
+                        sources[i].events.push.apply(sources[i].events, response.items);
 
                         sources[i].events = $filter('unique')(sources[i].events);
 
@@ -387,6 +388,20 @@
 
                         //recall the get events function
                         $scope.getEvents(sources, start, end, callback);
+                    },
+
+                    //error
+                    function(response){
+                        //show feedback
+                        $rootScope.$broadcast('feedback:start', {
+                            'type': 'alert alert-error',
+                            'message': response.data.error.message
+                        });
+
+                        //hide feedback
+                        $timeout(function(){
+                            $rootScope.$broadcast('feedback:stop');
+                        }, 1000);
                     });
                 });
             } else {
@@ -412,8 +427,14 @@
                 }
             });
 
+            //show feedback
+            $rootScope.$broadcast('feedback:start', {
+                'type': 'alert',
+                'message': 'Saving event ...'
+            });
+
             //send the event to the server
-            var promise = Events.insert({
+            Events.insert({
                 'calendarId': $scope.data.currentEvent.source.id,
                 'start': {
                     'dateTime': $.fullCalendar.formatDate($scope.data.currentEvent.start, 'u')
@@ -424,21 +445,45 @@
                 'summary': $scope.data.currentEvent.title,
                 'description': $scope.data.currentEvent.description,
                 'location': $scope.data.currentEvent.location
+            },
+
+            //success
+            function(response){
+
+                //reset the current event
+                $scope.setCurrentEvent();
+
+                //show feedback
+                $rootScope.$broadcast('feedback:start', {
+                    'type': 'alert alert-success',
+                    'message': 'Event saved'
+                });
+
+                //hide feedback
+                $timeout(function(){
+                    $rootScope.$broadcast('feedback:stop');
+
+                    //go to homepage
+                    $location.path('/');
+                }, 1000);
+            },
+            //error
+            function(response){
+                //show feedback
+                $rootScope.$broadcast('feedback:start', {
+                    'type': 'alert alert-error',
+                    'message': response.data.error.message
+                });
+
+                //hide feedback
+                $timeout(function(){
+                    $rootScope.$broadcast('feedback:stop');
+                }, 1000);
             });
-
-            promise.$then(function(){
-
-            });
-
-            //reset the current event
-            $scope.setCurrentEvent();
-
-            //go to homepage
-            $location.path('/');
         };
 
         //update event
-        $scope.updateEvent = function(){
+        $scope.updateEvent = function(successCallback, errorCallback){
             var d = new Date();
 
             safeApply($scope, function(){
@@ -449,41 +494,32 @@
                 });
 
                 $scope.data.currentEvent.updated = $.fullCalendar.formatDate(d, 'u');
-                $scope.data.currentEvent.sequence++;
 
                 //send data to the server
-                var promise = Events.update({
+                Events.update({
                     'calendarId': $scope.data.currentEvent.source.id,
                     'eventId': $scope.data.currentEvent.id,
                     'start': {
                         'dateTime': $.fullCalendar.formatDate($scope.data.currentEvent.start, 'u')
                     },
                     'end': {
-                        'dateTime': $.fullCalendar.formatDate($scope.data.currentEvent.start, 'u')
+                        'dateTime': $.fullCalendar.formatDate($scope.data.currentEvent.end, 'u')
                     },
                     'summary': $scope.data.currentEvent.title,
                     'description': $scope.data.currentEvent.description,
                     'location': $scope.data.currentEvent.location,
                     'sequence': $scope.data.currentEvent.sequence
-                });
+                },
 
-                promise.$then(function(response){
-                    //success
-                    if(response.status === 200){
-                        //show feedback
-                        $rootScope.$broadcast('feedback:start', {
-                            'type': 'alert alert-success',
-                            'message': 'Event updated'
-                        });
-                    }
-                    //error
-                    else {
-                        //show feedback
-                        $rootScope.$broadcast('feedback:start', {
-                            'type': 'alert alert-error',
-                            'message': 'Failed to update event'
-                        });
-                    }
+                //success
+                function(response){
+                    //update sequence
+                    $scope.data.currentEvent.sequence++;
+                    //show feedback
+                    $rootScope.$broadcast('feedback:start', {
+                        'type': 'alert alert-success',
+                        'message': 'Event updated'
+                    });
 
                     //hide feedback
                     $timeout(function(){
@@ -492,8 +528,73 @@
                         //go to homepage
                         $location.path('/');
                     }, 1000);
+
+                    if(typeof successCallback === 'function'){
+                        successCallback();
+                    }
+                },
+                //error
+                function(response){
+                    //show feedback
+                    $rootScope.$broadcast('feedback:start', {
+                        'type': 'alert alert-error',
+                        'message': response.data.error.message
+                    });
+
+                    //hide feedback
+                    $timeout(function(){
+                        $rootScope.$broadcast('feedback:stop');
+                    }, 1000);
+
+                    if(typeof errorCallback === 'function'){
+                        errorCallback();
+                    }
                 });
             });
+        };
+
+        $scope.deleteEvent = function(){
+            if(confirm('Are you sure you want to delete this event ?')){
+                $rootScope.$broadcast('feedback:start', {
+                    'type': 'alert',
+                    'message': 'Deleting event ...'
+                });
+
+                safeApply($scope, function(){
+                    //delete the event from the server
+                    Events.delete({
+                        'calendarId': $scope.data.currentEvent.source.id,
+                        'eventId': $scope.data.currentEvent.id,
+                        'sendNotifications': true
+                    },
+                    //success
+                    function(response){
+                        //feedback
+                        $rootScope.$broadcast('feedback:start', {
+                            'type': 'alert alert-success',
+                            'message': 'Event deleted.'
+                        });
+                        $timeout(function(){
+                            $rootScope.$broadcast('feedback:stop');
+                        }, 1000);
+
+                        //redirect to homepage
+                        //$location.path('/');
+                    },
+                    //error
+                    function(response){
+                        //feedback
+                        $rootScope.$broadcast('feedback:start', {
+                            'type': 'alert alert-error',
+                            'message': response.data.error.message
+                        });
+
+                        $timeout(function(){
+                            $rootScope.$broadcast('feedback:stop');
+                        }, 1000);
+                    });
+                });
+            }
         };
 
         //check start/end time and date
@@ -599,16 +700,28 @@
 
         //after an event has been moved to another slot
         $scope.eventDrop = function(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view){
+            //copy selected event into current event
             $scope.data.currentEvent = event;
 
-            $scope.updateEvent();
+            $scope.updateEvent(
+                function(){},
+                function(){
+                    revertFunc();
+                }
+            );
         };
 
         //after an event has been resized
         $scope.eventResize = function( event, dayDelta, minuteDelta, revertFunc, jsEvent, ui, view ) {
+            //copy selected event into current event
             $scope.data.currentEvent = event;
 
-            $scope.updateEvent();
+            $scope.updateEvent(
+                function(){},
+                function(){
+                    revertFunc();
+                }
+            );
         };
 
         //use stored sources for calendar events
@@ -656,9 +769,13 @@
                 if(eventData.end){
                     if(eventData.end instanceof Date) {
                         endDate = eventData.end;
-                    } else if(eventData.end.date){
+                    }
+
+                    if(eventData.end.date){
                         endDate = $.fullCalendar.parseDate(eventData.end.date);
-                    } else if(eventData.end.dateTime) {
+                    }
+
+                    if(eventData.end.dateTime) {
                         endDate = $.fullCalendar.parseDate(eventData.end.dateTime);
                     }
 
@@ -773,14 +890,23 @@
             });
 
             //request calendars from the server
-            var promise = CalendarList.list({
+            CalendarList.list({
                 'access_token': $.cookie('saturn_access_token')
-            });
+            },
+            //success
+            function(response){
+                //feedback
+                $rootScope.$broadcast('feedback:start', {
+                    'type': 'alert alert-success',
+                    'message': 'Calendars loaded'
+                });
 
-            //after they've loaded
-            promise.$then(function () {
+                $timeout(function(){
+                    $rootScope.$broadcast('feedback:stop');
+                }, 1000);
+
                 //loop over calendars and add/chenge metadata
-                angular.forEach(promise.items, function(value, key){
+                angular.forEach(response.items, function(value, key){
                     value.editable = (value.accessRole === 'owner' ? true : false);
                     value.events = [];
                     value.color = value.borderColor = value.backgroundColor;
@@ -791,9 +917,19 @@
                     $scope.data.calendars.push(value);
                 });
                 $scope.$emit('calendarsLoaded');
+            },
 
-                //notify everyone that calendars have loaded
-                $rootScope.$broadcast('feedback:stop');
+            //error
+            function(response){
+                //feedback
+                $rootScope.$broadcast('feedback:start', {
+                    'type': 'alert alert-error',
+                    'message': response.data.error.message
+                });
+
+                $timeout(function(){
+                    $rootScope.$broadcast('feedback:stop');
+                }, 1000);
             });
         }
 
@@ -806,20 +942,20 @@
             });
 
             //insert new calendar
-            var promise = Calendars.insert({
+            Calendars.insert({
                 'summary': $scope.calendar.summary,
                 'description': $scope.calendar.description,
                 'location': $scope.calendar.location,
                 'timeZone': $scope.calendar.timeZone
-            });
+            },
 
-            //callback
-            promise.$then(function(response){
+            //success
+            function(response){
                 //save the calendat into a calendar list
-                var calendarList = CalendarList.insert({
-                    'id': response.data.id,
-                    'kind': response.data.kind,
-                    'etag': response.data.etag,
+                CalendarList.insert({
+                    'id': response.id,
+                    'kind': response.kind,
+                    'etag': response.etag,
                     'hidden': false,
                     'selected': true,
                     'foregroundColor': $scope.calendar.foregroundColor,
@@ -828,49 +964,83 @@
                         "method": 'email',
                         "minutes": 10
                     }]
+                },
+
+                //success
+                function(resp){
+                    var calendar = {
+                        'id': resp.id,
+                        'kind': resp.kind,
+                        'etag': resp.etag,
+                        'hidden': resp.hidden,
+                        'selected': resp.selected,
+                        'foregroundColor': resp.foregroundColor,
+                        'backgroundColor': resp.backgroundColor,
+                        'colorId': resp.colorId,
+                        'defaultReminders': resp.defaultReminders,
+                        'locaton': resp.defaultReminders,
+                        'summary': resp.summary,
+                        'title': resp.summary,
+                        'accessRole': resp.accessRole
+                    };
+
+                    //update color meta
+                    calendar.data.color = resp.backgroundColor;
+
+                    //push the calendar to personal calendars array
+                    $scope.data.calendars.push(calendar);
+                    //feedback
+                    $rootScope.$broadcast('feedback:start', {
+                        'type': 'alert alert-success',
+                        'message': 'Calendar saved'
+                    });
+
+                    $timeout(function(){
+                        $rootScope.$broadcast('feedback:stop');
+                    }, 1000);
+
+                    //redirect to the homepage
+                    $location.path('/');
+                },
+
+                //error
+                function(resp){
+                    //feedback
+                    $rootScope.$broadcast('feedback:start', {
+                        'type': 'alert alert-error',
+                        'message': resp.error.message
+                    });
+
+                    $timeout(function(){
+                        $rootScope.$broadcast('feedback:stop');
+                    }, 1000);
+                });
+            },
+
+
+            //error
+            function(response){
+                //feedback
+                $rootScope.$broadcast('feedback:start', {
+                    'type': 'alert alert-error',
+                    'message': response.error.message
                 });
 
-                calendarList.$then(function(response){
-                    if(response.status === 200){
-                        //feedback
-                        $rootScope.$broadcast('feedback:start', {
-                            'type': 'alert alert-success',
-                            'message': 'Calendar successfully created'
-                        });
-
-                        $timeout(function(){
-                            $rootScope.$broadcast('feedback:stop');
-                        }, 1000);
-
-                        //update color meta
-                        response.data.color = response.data.backgroundColor;
-
-                        //push the calendar to personal calendars array
-                        $scope.data.calendars.push(response.data);
-                    } else {
-                        //feedback
-                        $rootScope.$broadcast('feedback:start', {
-                            'type': 'alert alert-errot',
-                            'message': 'Calendar could not be saved. Try again.'
-                        });
-
-                        $timeout(function(){
-                            $rootScope.$broadcast('feedback:stop');
-                        }, 1000);
-                    }
-                });
-
-                $scope.resetCalendar();
-
-                //redirect to the homepage
-                $location.path('/');
+                $timeout(function(){
+                    $rootScope.$broadcast('feedback:stop');
+                }, 1000);
             });
             //redirect to the homepage
             //$location.path('/');
         };
 
-        //save calendar settings
-        $scope.saveCalendar = function(){
+        //update calendar settings
+        $scope.updateCalendar = function(){
+            //feedback
+            $rootScope.$broadcast('feedback:start', {
+                'type': 'alert',
+                'message': 'Updating calendar ...'
+            });
             $.extend($scope.data.currentCalendar, $scope.calendar);
 
             //hack to get calendar colors to behave ok
@@ -878,22 +1048,44 @@
             $scope.data.currentCalendar.borderColor =  $scope.data.currentCalendar.color;
 
             //update calendar meta
-            var promise = Calendars.update({
+            Calendars.update({
                 'calendarId': $scope.calendar.id,
                 'summary': $scope.calendar.summary,
                 'description': $scope.calendar.description,
                 'location': $scope.calendar.location,
                 'timeZone': $scope.calendar.timeZone
-            });
+            },
 
-            //callback
-            promise.$then(function(){
+            //success
+            function(response){
+                //feedback
+                $rootScope.$broadcast('feedback:start', {
+                    'type': 'alert alert-success',
+                    'message': 'Calendar updated'
+                });
+
+                $timeout(function(){
+                    $rootScope.$broadcast('feedback:stop');
+                }, 1000);
+
                 $scope.calendar = null;
+
+                //redirect to the homepage
+                $location.path('/');
+            },
+
+            //error
+            function(response){
+                //feedback
+                $rootScope.$broadcast('feedback:start', {
+                    'type': 'alert alert-error',
+                    'message': response.error.message
+                });
+
+                $timeout(function(){
+                    $rootScope.$broadcast('feedback:stop');
+                }, 1000);
             });
-
-            $location.path('/');
-
-            $scope.calendar = null;
         };
 
         //set current calendar ID
@@ -909,9 +1101,6 @@
         //reset current calendar settings
         $scope.resetCalendar = function(){
             $.extend($scope.calendar, $scope.data.currentCalendar);
-
-            //redirect to the homepage
-            $location.path('/');
         };
 
         //delete calendar
@@ -985,7 +1174,7 @@
 
     /******************************************************************/
         //User
-    saturnApp.controller('UserController', function ($scope, $rootScope, $location, $http, Data, Settings) {
+    saturnApp.controller('UserController', function ($scope, $rootScope, $location, $http, $timeout, Data, Settings) {
         $scope.data = Data;
 
         if(!$scope.data.user){
@@ -1002,22 +1191,22 @@
                 'user': $scope.loginData.user,
                 'password': $scope.loginData.password
             }).success(function(data, status, headers, config){
-                    $scope.data.apiKey = data.apiKey;
-                    //set google auth key
-                    gapi.client.setApiKey(data.apiKey);
+                $scope.data.apiKey = data.apiKey;
+                //set google auth key
+                gapi.client.setApiKey(data.apiKey);
 
-                    window.setTimeout(function(){
-                        gapi.auth.authorize({
-                            'client_id': data.clientId,
-                            'scope': data.scopes,
-                            'response_type': 'token',
-                            'immediate': false,
-                            'login_hint': data.login_hint,
-                            'approval_prompt': 'auto'
-                        }, handleAuthResult);
-                    }, 200);
-                }).error(function(data, status, headers, config){
-                });
+                window.setTimeout(function(){
+                    gapi.auth.authorize({
+                        'client_id': data.clientId,
+                        'scope': data.scopes,
+                        'response_type': 'token',
+                        'immediate': false,
+                        'login_hint': data.login_hint,
+                        'approval_prompt': 'auto'
+                    }, handleAuthResult);
+                }, 200);
+            }).error(function(data, status, headers, config){
+            });
         };
 
         //called after the user has logged in
@@ -1042,15 +1231,30 @@
                 $scope.getUserData();
 
                 //get user settings
-                var promise = Settings.list({
+                Settings.list({
                     'access_token': $.cookie('saturn_access_token')
-                });
+                },
 
-                promise.$then(function(){
+                //success
+                function(response){
                     //loop over all the settings
-                    angular.forEach(promise.items, function(value, key){
+                    angular.forEach(response.items, function(value, key){
                         $scope.data.settings[value.id] = value.value;
                     });
+                },
+
+                //error
+                function(response){
+                    //show feedback
+                    $rootScope.$broadcast('feedback:start', {
+                        'type': 'alert alert-error',
+                        'message': response.data.error.message
+                    });
+
+                    //hide feedback
+                    $timeout(function(){
+                        $rootScope.$broadcast('feedback:stop');
+                    }, 1000);
                 });
             }
         }
